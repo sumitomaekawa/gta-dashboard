@@ -201,7 +201,7 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 32p
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
       <input type="text" id="search-input" placeholder="クライアントを検索…" oninput="filterClients(this.value)">
     </div>
-    <button onclick="exportHTML()" title="現在の状態をHTMLファイルとして保存" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;background:none;border:1px solid var(--border);border-radius:6px;padding:5px 11px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;color:var(--text-muted);transition:all .2s;white-space:nowrap;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)';this.style.background='rgba(79,142,247,.08)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)';this.style.background='none'">
+    <button onclick="exportHTML()" title="現在の状態をHTMLファイルとして保存" style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; background: none; border-color: var(--border); border-top-style: ; border-top-width: ; border-right-style: ; border-right-width: ; border-bottom-style: ; border-bottom-width: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-width: ; border-image-outset: ; border-image-repeat: ; border-radius: 6px; padding: 5px 11px; cursor: pointer; font-family: &quot;Noto Sans JP&quot;, sans-serif; color: var(--text-muted); transition: 0.2s; white-space: nowrap;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)';this.style.background='rgba(79,142,247,.08)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)';this.style.background='none'">
       <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
       エクスポート
     </button>
@@ -344,12 +344,12 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 32p
         <div class="section-header-actions">
           <button class="sec-btn sec-btn-move" onclick="moveSection('tools',-1)" title="上へ">▲</button>
           <button class="sec-btn sec-btn-move" onclick="moveSection('tools',+1)" title="下へ">▼</button>
-          <button class="sec-btn sec-btn-edit" onclick="toggleEditMode('tools',this)">✏️ 編集</button>
+          <button class="sec-btn sec-btn-edit active" onclick="toggleEditMode('tools',this)">✅ 完了</button>
           <button class="sec-btn sec-btn-rename" onclick="openRenameSectionModal('tools')">名称変更</button>
           <button class="sec-btn sec-btn-del" onclick="deleteSection('tools')">削除</button>
         </div>
       </div>
-      <div class="tool-grid" id="grid-tools">
+      <div class="tool-grid edit-mode" id="grid-tools">
       <div class="tile-wrap" draggable="true" data-sec="tools" data-idx="0">
         <div class="tile-actions">
           <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('tools',0,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
@@ -460,6 +460,17 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 32p
         </a>
       </div>
     
+      <div class="tile-wrap" draggable="true" data-sec="tools" data-idx="10">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('tools',10,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('tools',10,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://github.com/sumitomaekawa/gta-dashboard" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">🔗</div>
+          <div class="tile-label">GitHub</div>
+        </a>
+      </div>
+    
       <div class="add-tile-wrap">
         <button class="add-tile-btn" onclick="openAddTileModal('tools',event)">
           <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span>ツールを追加</span>
@@ -534,12 +545,12 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 32p
         <div class="section-header-actions">
           <button class="sec-btn sec-btn-move" onclick="moveSection('clients',-1)" title="上へ">▲</button>
           <button class="sec-btn sec-btn-move" onclick="moveSection('clients',+1)" title="下へ">▼</button>
-          <button class="sec-btn sec-btn-edit active" onclick="toggleEditMode('clients',this)">✅ 完了</button>
+          <button class="sec-btn sec-btn-edit" onclick="toggleEditMode('clients',this)">✏️ 編集</button>
           <button class="sec-btn sec-btn-rename" onclick="openRenameSectionModal('clients')">名称変更</button>
           <button class="sec-btn sec-btn-del" onclick="deleteSection('clients')">削除</button>
         </div>
       </div>
-      <div class="tool-grid edit-mode" id="grid-clients">
+      <div class="tool-grid" id="grid-clients">
       <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="0">
         <div class="tile-actions">
           <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(0,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
@@ -876,18 +887,18 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 32p
 <!-- Tile add/edit modal -->
 <div class="overlay" id="tile-modal">
   <div class="modal">
-    <h3 id="tile-modal-title">ツールを追加</h3>
+    <h3 id="tile-modal-title">「GitHub」を編集</h3>
     <div class="form-group">
       <label>アイコン</label>
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
-        <div id="tile-icon-preview" style="width:48px;height:48px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;overflow:hidden;"></div>
+        <div id="tile-icon-preview" style="width:48px;height:48px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;overflow:hidden;">🔗</div>
         <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
           <div style="display:flex;gap:8px;align-items:center;">
             <input type="text" id="tile-emoji" placeholder="例: 🔧" maxlength="4" oninput="updateTileIconPreview()" style="width:80px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:9px 12px;outline:none;font-family:'Noto Sans JP',sans-serif;transition:border-color .2s;">
             <span style="font-size:11px;color:var(--text-muted);">絵文字</span>
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
-            <button type="button" onclick="document.getElementById('tile-img-input').click()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:11px;padding:7px 12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;white-space:nowrap;transition:border-color .2s,color .2s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">📁 画像を選択</button>
+            <button type="button" onclick="document.getElementById('tile-img-input').click()" style="background: var(--surface2); border-color: var(--border); border-top-style: ; border-top-width: ; border-right-style: ; border-right-width: ; border-bottom-style: ; border-bottom-width: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-width: ; border-image-outset: ; border-image-repeat: ; border-radius: 8px; color: var(--text-dim); font-size: 11px; padding: 7px 12px; cursor: pointer; font-family: &quot;Noto Sans JP&quot;, sans-serif; white-space: nowrap; transition: border-color 0.2s, color 0.2s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">📁 画像を選択</button>
             <span id="tile-img-filename" style="font-size:11px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;"></span>
             <button type="button" id="tile-img-clear" onclick="clearTileImage()" style="display:none;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:0;font-family:'Noto Sans JP',sans-serif;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-muted)'">✕ 削除</button>
           </div>
@@ -934,7 +945,7 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 32p
   </div>
 </div>
 
-<div class="toast show" id="toast"><div class="toast-dot"></div><span id="toast-msg">クライアントを追加しました</span></div>
+<div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-msg">💾 保存しました — Googleドライブのファイルを差し替えてください</span></div>
 
 <script>
 // ============================================================
@@ -1177,6 +1188,11 @@ let SECTIONS = [
         "emoji": "📒",
         "label": "notion",
         "url": "https://www.notion.so/ALL-GRIT-25cf30fead2080af8d45d15df4a5793f"
+      },
+      {
+        "emoji": "🔗",
+        "label": "GitHub",
+        "url": "https://github.com/sumitomaekawa/gta-dashboard"
       }
     ]
   },
