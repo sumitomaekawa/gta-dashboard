@@ -1,0 +1,1929 @@
+<html lang="ja"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>業務ダッシュボード</title>
+<link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;🗂️&lt;/text&gt;&lt;/svg&gt;">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0d0f14; --surface:#151820; --surface2:#1c2030; --border:#252a3a;
+  --accent:#4f8ef7; --accent2:#7c5ff5; --text:#e8eaf0;
+  --text-muted:#6b7280; --text-dim:#9ca3af; --success:#34d399; --danger:#f87171;
+  --card-hover:#1e2436;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(79,142,247,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(79,142,247,.035) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* ── Header ── */
+header{position:sticky;top:0;z-index:100;background:rgba(13,15,20,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:0 32px;height:58px;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;}
+.header-right{display:flex;align-items:center;gap:14px;}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);}
+.breadcrumb .sep{color:var(--border);}
+.breadcrumb .crumb-link{cursor:pointer;transition:color .15s;}
+.breadcrumb .crumb-link:hover{color:var(--accent);}
+.breadcrumb .crumb-current{color:var(--text-dim);}
+.search-wrap{position:relative;}
+.search-wrap input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:13px;padding:7px 14px 7px 34px;outline:none;width:210px;transition:border-color .2s,box-shadow .2s;}
+.search-wrap input::placeholder{color:var(--text-muted);}
+.search-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,142,247,.14);}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;}
+
+/* ── Main ── */
+main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 32px 80px;}
+#home-view{display:block;}
+#list-view{display:none;}
+#detail-view{display:none;}
+
+/* ── Page heading ── */
+.page-eyebrow{font-size:11px;letter-spacing:.18em;color:var(--text-muted);text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;}
+.page-heading{font-size:26px;font-weight:700;color:var(--text);margin-bottom:36px;line-height:1.2;}
+.page-heading span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+
+/* ── Section ── */
+.section{margin-bottom:44px;}
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.section-icon{font-size:16px;line-height:1;}
+.section-title{font-size:13px;font-weight:700;color:var(--text-dim);letter-spacing:.06em;}
+.section-header-actions{display:flex;align-items:center;gap:6px;margin-left:auto;}
+
+/* ── Section buttons ── */
+.sec-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;background:none;border:1px solid var(--border);border-radius:6px;padding:4px 9px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all .2s;white-space:nowrap;}
+.sec-btn-edit{color:var(--text-muted);}
+.sec-btn-edit:hover,.sec-btn-edit.active{color:var(--accent);border-color:var(--accent);background:rgba(79,142,247,.08);}
+.sec-btn-rename{color:var(--text-muted);}
+.sec-btn-rename:hover{color:var(--accent);border-color:var(--accent);background:rgba(79,142,247,.07);}
+.sec-btn-del{color:var(--text-muted);}
+.sec-btn-del:hover{color:var(--danger);border-color:var(--danger);background:rgba(248,113,113,.07);}
+
+/* ── Tool grid ── */
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;}
+
+/* ── Tile wrap ── */
+.tile-wrap{position:relative;border-radius:14px;}
+
+/* ── Tool tile ── */
+.tool-tile{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 12px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;text-decoration:none;color:var(--text);transition:background .2s,border-color .2s,transform .18s,box-shadow .2s;}
+.tool-tile:hover{background:var(--card-hover);border-color:rgba(79,142,247,.35);transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.35);}
+.tile-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--surface2);flex-shrink:0;}
+.tile-label{font-size:12px;font-weight:500;text-align:center;color:var(--text-dim);line-height:1.3;}
+
+/* ── Client tile ── */
+.client-tile{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 12px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;position:relative;overflow:hidden;transition:background .2s,border-color .2s,transform .18s,box-shadow .2s;}
+.client-tile::before{content:'';position:absolute;inset:0;border-radius:14px;background:linear-gradient(135deg,rgba(79,142,247,.06),rgba(124,95,245,.06));opacity:0;transition:opacity .2s;}
+.client-tile:hover{background:var(--card-hover);border-color:rgba(79,142,247,.35);transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.35);}
+.client-tile:hover::before{opacity:1;}
+.client-avatar{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,rgba(79,142,247,.2),rgba(124,95,245,.2));display:flex;align-items:center;justify-content:center;font-size:22px;}
+.client-tile-name{font-size:11px;font-weight:600;text-align:center;color:var(--text-dim);line-height:1.4;}
+
+/* ── Drag & Drop ── */
+.tile-wrap.dragging{opacity:.3;transform:scale(.95);}
+.tile-wrap.drag-over .tool-tile,
+.tile-wrap.drag-over .client-tile{border-color:var(--accent);background:rgba(79,142,247,.1);transform:scale(1.04);}
+
+/* ── Tile overlay edit/delete buttons ── */
+.tile-actions{position:absolute;top:5px;right:5px;display:none;gap:4px;z-index:10;}
+.edit-mode .tile-actions{display:flex;}
+.tile-act-btn{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--border);background:rgba(13,15,20,.8);transition:all .15s;}
+.tile-act-btn svg{width:11px;height:11px;color:var(--text-dim);}
+.tile-act-edit:hover{background:var(--accent);border-color:var(--accent);}
+.tile-act-edit:hover svg{color:#fff;}
+.tile-act-del:hover{background:var(--danger);border-color:var(--danger);}
+.tile-act-del:hover svg{color:#fff;}
+.edit-mode .tool-tile,
+.edit-mode .client-tile{cursor:grab;}
+
+/* ── Add tile button ── */
+.add-tile-wrap{display:none;}
+.edit-mode .add-tile-wrap{display:block;}
+.add-tile-btn{background:transparent;border:1.5px dashed var(--border);border-radius:14px;padding:20px 12px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;width:100%;min-height:96px;color:var(--text-muted);font-size:11px;font-family:'Noto Sans JP',sans-serif;transition:border-color .2s,color .2s,background .2s;}
+.add-tile-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(79,142,247,.05);}
+
+/* ── Add section button ── */
+.add-section-btn{display:flex;align-items:center;gap:10px;width:100%;padding:16px 20px;background:transparent;border:1.5px dashed var(--border);border-radius:14px;color:var(--text-muted);font-size:13px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:border-color .2s,color .2s,background .2s;margin-top:8px;}
+.add-section-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(79,142,247,.05);}
+.sec-btn-move{color:var(--text-muted);padding:4px 7px;}
+.sec-btn-move:hover{color:var(--accent);border-color:var(--accent);background:rgba(79,142,247,.07);}
+
+/* ── Client list cards ── */
+.clients-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;}
+.client-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 22px;cursor:pointer;position:relative;overflow:hidden;transition:background .2s,border-color .2s,transform .18s,box-shadow .2s;}
+.client-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0;transition:opacity .2s;}
+.client-card:hover{background:var(--card-hover);border-color:rgba(79,142,247,.4);transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.35);}
+.client-card:hover::before{opacity:1;}
+.card-index{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);margin-bottom:10px;letter-spacing:.1em;}
+.card-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.tag{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:4px;}
+.tag-hp{background:rgba(79,142,247,.12);color:#80b4ff;border:1px solid rgba(79,142,247,.2);}
+.tag-ss{background:rgba(52,211,153,.12);color:#6ee7c3;border:1px solid rgba(52,211,153,.2);}
+.tag-note{background:rgba(124,95,245,.12);color:#b39af9;border:1px solid rgba(124,95,245,.2);}
+.card-arrow{position:absolute;right:18px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:18px;transition:color .2s,transform .2s;}
+.client-card:hover .card-arrow{color:var(--accent);transform:translateY(-50%) translateX(3px);}
+.no-results{text-align:center;padding:60px 20px;color:var(--text-muted);font-size:14px;display:none;}
+
+/* ── Back button ── */
+.back-btn{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);cursor:pointer;margin-bottom:26px;padding:6px 0;transition:color .2s;background:none;border:none;font-family:'Noto Sans JP',sans-serif;}
+.back-btn:hover{color:var(--accent);}
+
+/* ── Detail ── */
+.detail-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:32px;flex-wrap:wrap;}
+.detail-name{font-size:24px;font-weight:700;color:var(--text);}
+.detail-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.open-all-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:14px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:opacity .2s,transform .2s,box-shadow .2s;box-shadow:0 4px 18px rgba(79,142,247,.28);}
+.open-all-btn:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 8px 26px rgba(79,142,247,.38);}
+.edit-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 14px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:color .2s,border-color .2s;}
+.edit-btn:hover{color:var(--text);border-color:var(--text-muted);}
+.detail-tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:13px;}
+.detail-tool-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;transition:background .2s,border-color .2s;}
+.detail-tool-card:hover{background:var(--card-hover);border-color:rgba(79,142,247,.3);}
+.dtc-left{display:flex;align-items:center;gap:14px;}
+.dtc-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.icon-hp{background:rgba(79,142,247,.14);}
+.icon-ss{background:rgba(52,211,153,.14);}
+.icon-note{background:rgba(124,95,245,.14);}
+.dtc-info{min-width:0;}
+.dtc-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:.1em;margin-bottom:3px;}
+.dtc-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.dtc-url{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+.dtc-edit-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;color:var(--text-muted);transition:all .15s;flex-shrink:0;}
+.dtc-edit-btn svg{width:12px;height:12px;}
+.dtc-edit-btn:hover{color:var(--accent);border-color:var(--accent);background:rgba(79,142,247,.1);}
+.detail-add-link-btn{display:flex;align-items:center;gap:8px;width:100%;padding:14px 20px;background:transparent;border:1.5px dashed var(--border);border-radius:12px;color:var(--text-muted);font-size:13px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all .2s;margin-top:4px;}
+.detail-add-link-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(79,142,247,.05);}
+.btn-delete{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3);border-radius:8px;color:#f87171;padding:9px 16px;font-size:13px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-right:auto;transition:all .2s;}
+.btn-delete:hover{background:rgba(248,113,113,.22);}
+.dtc-open{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--accent);background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.2);border-radius:7px;padding:6px 13px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;white-space:nowrap;transition:background .2s,border-color .2s;text-decoration:none;flex-shrink:0;}
+.dtc-open:hover{background:rgba(79,142,247,.2);border-color:rgba(79,142,247,.4);}
+
+/* ── Section drag handle ── */
+.section-drag-handle{font-size:15px;color:var(--text-muted);cursor:grab;padding:0 4px 0 0;line-height:1;user-select:none;transition:color .15s;flex-shrink:0;}
+.section-drag-handle:hover{color:var(--accent);}
+.section-drag-handle:active{cursor:grabbing;}
+.section.section-dragging{opacity:.35;transform:scale(.99);}
+.section.section-drag-over{outline:2px solid var(--accent);outline-offset:5px;border-radius:16px;}
+
+/* ── Modals ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);z-index:300;align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:30px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.5);}
+.modal h3{font-size:17px;font-weight:700;margin-bottom:22px;}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:11px;color:var(--text-muted);letter-spacing:.1em;font-family:'DM Mono',monospace;margin-bottom:5px;}
+.form-group input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:9px 12px;outline:none;font-family:'Noto Sans JP',sans-serif;transition:border-color .2s;}
+.form-group input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,142,247,.12);}
+.modal-actions{display:flex;gap:10px;margin-top:22px;justify-content:flex-end;}
+.btn-cancel{background:none;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);padding:9px 18px;font-size:13px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:border-color .2s,color .2s;}
+.btn-cancel:hover{border-color:var(--text-muted);color:var(--text);}
+.btn-save{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:8px;color:#fff;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:opacity .2s;}
+.btn-save:hover{opacity:.85;}
+
+/* ── Modals ── */position:fixed;bottom:26px;right:26px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px 18px;font-size:13px;color:var(--text);display:flex;align-items:center;gap:10px;z-index:1000;box-shadow:0 8px 24px rgba(0,0,0,.4);transform:translateY(80px);opacity:0;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast-dot{width:8px;height:8px;background:var(--success);border-radius:50%;flex-shrink:0;animation:pulse 1.2s ease infinite;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.7);}}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--text-muted);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">▸ Biz Dashboard</div>
+  <div class="header-right">
+    <div class="breadcrumb" id="breadcrumb"><span class="crumb-current">ホーム</span></div>
+    <div class="search-wrap" id="search-area" style="display:none">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+      <input type="text" id="search-input" placeholder="クライアントを検索…" oninput="filterClients(this.value)">
+    </div>
+    <button onclick="exportHTML()" title="現在の状態をHTMLファイルとして保存" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;background:none;border:1px solid var(--border);border-radius:6px;padding:5px 11px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;color:var(--text-muted);transition:all .2s;white-space:nowrap;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)';this.style.background='rgba(79,142,247,.08)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)';this.style.background='none'">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      エクスポート
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- HOME -->
+  <div id="home-view" style="display: block;">
+    <p class="page-eyebrow">Dashboard / Home</p>
+    <h1 class="page-heading">業務<span>ダッシュボード</span></h1>
+    <div id="sections-container"><div class="section" data-sec-id="ai" draggable="true">
+      <div class="section-header">
+        <span class="section-icon">🤖</span>
+        <span class="section-title">AI</span>
+        <div class="section-header-actions">
+          <button class="sec-btn sec-btn-move" onclick="moveSection('ai',-1)" title="上へ">▲</button>
+          <button class="sec-btn sec-btn-move" onclick="moveSection('ai',+1)" title="下へ">▼</button>
+          <button class="sec-btn sec-btn-edit" onclick="toggleEditMode('ai',this)">✏️ 編集</button>
+          <button class="sec-btn sec-btn-rename" onclick="openRenameSectionModal('ai')">名称変更</button>
+          <button class="sec-btn sec-btn-del" onclick="deleteSection('ai')">削除</button>
+        </div>
+      </div>
+      <div class="tool-grid" id="grid-ai">
+      <div class="tile-wrap" draggable="true" data-sec="ai" data-idx="0">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('ai',0,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('ai',0,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">🤖</div>
+          <div class="tile-label">ChatGPT</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="ai" data-idx="1">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('ai',1,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('ai',1,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">✨</div>
+          <div class="tile-label">Gemini</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="ai" data-idx="2">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('ai',2,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('ai',2,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://claude.ai" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">🤍</div>
+          <div class="tile-label">Claude</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="ai" data-idx="3">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('ai',3,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('ai',3,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://notebooklm.google.com/?authuser=1" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">📓</div>
+          <div class="tile-label">NotebookLM</div>
+        </a>
+      </div>
+    
+      <div class="add-tile-wrap">
+        <button class="add-tile-btn" onclick="openAddTileModal('ai',event)">
+          <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span>ツールを追加</span>
+        </button>
+      </div></div>
+    </div><div class="section" data-sec-id="jimu" draggable="true">
+      <div class="section-header">
+        <span class="section-icon">📋</span>
+        <span class="section-title">事務</span>
+        <div class="section-header-actions">
+          <button class="sec-btn sec-btn-move" onclick="moveSection('jimu',-1)" title="上へ">▲</button>
+          <button class="sec-btn sec-btn-move" onclick="moveSection('jimu',+1)" title="下へ">▼</button>
+          <button class="sec-btn sec-btn-edit" onclick="toggleEditMode('jimu',this)">✏️ 編集</button>
+          <button class="sec-btn sec-btn-rename" onclick="openRenameSectionModal('jimu')">名称変更</button>
+          <button class="sec-btn sec-btn-del" onclick="deleteSection('jimu')">削除</button>
+        </div>
+      </div>
+      <div class="tool-grid" id="grid-jimu">
+      <div class="tile-wrap" draggable="true" data-sec="jimu" data-idx="0">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('jimu',0,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('jimu',0,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://givertakeall.recog.works/letters" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">🎖️</div>
+          <div class="tile-label">RECOG</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="jimu" data-idx="1">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('jimu',1,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('jimu',1,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://attendance.moneyforward.com/my_page" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">🕐</div>
+          <div class="tile-label">勤怠</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="jimu" data-idx="2">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('jimu',2,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('jimu',2,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://payroll.moneyforward.com/v2/employees/home" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">💴</div>
+          <div class="tile-label">給与</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="jimu" data-idx="3">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('jimu',3,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('jimu',3,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://expense.moneyforward.com/" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">🧾</div>
+          <div class="tile-label">経費</div>
+        </a>
+      </div>
+    
+      <div class="add-tile-wrap">
+        <button class="add-tile-btn" onclick="openAddTileModal('jimu',event)">
+          <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span>ツールを追加</span>
+        </button>
+      </div></div>
+    </div><div class="section" data-sec-id="tools" draggable="true">
+      <div class="section-header">
+        <span class="section-icon">⚙️</span>
+        <span class="section-title">ツール</span>
+        <div class="section-header-actions">
+          <button class="sec-btn sec-btn-move" onclick="moveSection('tools',-1)" title="上へ">▲</button>
+          <button class="sec-btn sec-btn-move" onclick="moveSection('tools',+1)" title="下へ">▼</button>
+          <button class="sec-btn sec-btn-edit" onclick="toggleEditMode('tools',this)">✏️ 編集</button>
+          <button class="sec-btn sec-btn-rename" onclick="openRenameSectionModal('tools')">名称変更</button>
+          <button class="sec-btn sec-btn-del" onclick="deleteSection('tools')">削除</button>
+        </div>
+      </div>
+      <div class="tool-grid" id="grid-tools">
+      <div class="tile-wrap" draggable="true" data-sec="tools" data-idx="0">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('tools',0,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('tools',0,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://calendar.google.com" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">📅</div>
+          <div class="tile-label">カレンダー</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="tools" data-idx="1">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('tools',1,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('tools',1,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://app.notta.ai/7351917028185690112/dashboard" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">🎙️</div>
+          <div class="tile-label">notta</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="tools" data-idx="2">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('tools',2,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('tools',2,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://www.canva.com/" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">🎨</div>
+          <div class="tile-label">Canva</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="tools" data-idx="3">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('tools',3,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('tools',3,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://app-na2.hubspot.com/contacts/22493921/objects/0-3/views/all/board?noprefetch=" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">🟠</div>
+          <div class="tile-label">HubSpot</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="tools" data-idx="4">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('tools',4,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('tools',4,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://www.cloudsign.jp/dashboard" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">✍️</div>
+          <div class="tile-label">CLOUDSIGN</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="tools" data-idx="5">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('tools',5,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('tools',5,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://timerex.net/user/0" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">📆</div>
+          <div class="tile-label">TimeRex</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="tools" data-idx="6">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('tools',6,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('tools',6,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://app.neilpatel.com/ja/dashboard" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">📈</div>
+          <div class="tile-label">Ubersuggest</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="tools" data-idx="7">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('tools',7,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('tools',7,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://www.ilovepdf.com/ja" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">📕</div>
+          <div class="tile-label">ilovePDF</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="tools" data-idx="8">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('tools',8,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('tools',8,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://www.iloveimg.com/ja" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">🖼️</div>
+          <div class="tile-label">iloveIMG</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="tools" data-idx="9">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('tools',9,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('tools',9,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://www.notion.so/ALL-GRIT-25cf30fead2080af8d45d15df4a5793f" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">📒</div>
+          <div class="tile-label">notion</div>
+        </a>
+      </div>
+    
+      <div class="add-tile-wrap">
+        <button class="add-tile-btn" onclick="openAddTileModal('tools',event)">
+          <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span>ツールを追加</span>
+        </button>
+      </div></div>
+    </div><div class="section" data-sec-id="line" draggable="true">
+      <div class="section-header">
+        <span class="section-icon">💬</span>
+        <span class="section-title">LINE</span>
+        <div class="section-header-actions">
+          <button class="sec-btn sec-btn-move" onclick="moveSection('line',-1)" title="上へ">▲</button>
+          <button class="sec-btn sec-btn-move" onclick="moveSection('line',+1)" title="下へ">▼</button>
+          <button class="sec-btn sec-btn-edit" onclick="toggleEditMode('line',this)">✏️ 編集</button>
+          <button class="sec-btn sec-btn-rename" onclick="openRenameSectionModal('line')">名称変更</button>
+          <button class="sec-btn sec-btn-del" onclick="deleteSection('line')">削除</button>
+        </div>
+      </div>
+      <div class="tool-grid" id="grid-line">
+      <div class="tile-wrap" draggable="true" data-sec="line" data-idx="0">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('line',0,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('line',0,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://account.line.biz/login?redirectUri=https%3A%2F%2Faccount.line.biz%2Foauth2%2Fcallback%3Fclient_id%3D10%26code_challenge%3DFqCLBaKpNBeBGdzQZ97XcMy4phYBijoCyEsEsTfAibg%26code_challenge_method%3DS256%26redirect_uri%3Dhttps%253A%252F%252Fmanager.line.biz%252Fapi%252Foauth2%252FbizId%252Fcallback%26response_type%3Dcode%26state%3DebwYOz7Eh16rJnHz9jRQxwkAdGVqMXmL" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">💚</div>
+          <div class="tile-label">公式LINE</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="line" data-idx="1">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('line',1,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('line',1,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://line-saas.auka.jp/builder/login" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">🟩</div>
+          <div class="tile-label">ALL GRIT</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="line" data-idx="2">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('line',2,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('line',2,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://saas-staging.auka-dev.jp/builder/" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">🔧</div>
+          <div class="tile-label">ALL GRIT staging</div>
+        </a>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="line" data-idx="3">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('line',3,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('line',3,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <a class="tool-tile" href="https://line-saas.auka.jp/admin" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">🔑</div>
+          <div class="tile-label">ALL GRIT admin</div>
+        </a>
+      </div>
+    
+      <div class="add-tile-wrap">
+        <button class="add-tile-btn" onclick="openAddTileModal('line',event)">
+          <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span>ツールを追加</span>
+        </button>
+      </div></div>
+    </div><div class="section" data-sec-id="clients" draggable="true">
+      <div class="section-header">
+        <span class="section-icon">🏢</span>
+        <span class="section-title">クライアント</span>
+        <div class="section-header-actions">
+          <button class="sec-btn sec-btn-move" onclick="moveSection('clients',-1)" title="上へ">▲</button>
+          <button class="sec-btn sec-btn-move" onclick="moveSection('clients',+1)" title="下へ">▼</button>
+          <button class="sec-btn sec-btn-edit active" onclick="toggleEditMode('clients',this)">✅ 完了</button>
+          <button class="sec-btn sec-btn-rename" onclick="openRenameSectionModal('clients')">名称変更</button>
+          <button class="sec-btn sec-btn-del" onclick="deleteSection('clients')">削除</button>
+        </div>
+      </div>
+      <div class="tool-grid edit-mode" id="grid-clients">
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="0">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(0,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(0,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(0)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社 ヤマカ木材</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="1">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(1,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(1,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(1)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">紀の国住宅株式会社</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="2">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(2,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(2,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(2)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社C</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="3">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(3,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(3,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(3)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社D</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="4">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(4,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(4,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(4)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社E</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="5">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(5,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(5,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(5)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社F</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="6">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(6,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(6,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(6)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社G</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="7">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(7,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(7,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(7)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社H</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="8">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(8,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(8,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(8)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社I</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="9">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(9,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(9,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(9)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社J</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="10">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(10,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(10,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(10)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社K</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="11">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(11,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(11,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(11)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社L</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="12">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(12,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(12,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(12)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社M</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="13">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(13,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(13,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(13)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社N</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="14">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(14,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(14,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(14)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社O</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="15">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(15,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(15,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(15)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社P</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="16">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(16,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(16,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(16)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社Q</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="17">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(17,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(17,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(17)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社R</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="18">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(18,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(18,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(18)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社S</div>
+        </div>
+      </div>
+    
+      <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="19">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(19,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(19,event)" title="削除"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(19)">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">株式会社T</div>
+        </div>
+      </div>
+    
+      <div class="add-tile-wrap">
+        <button class="add-tile-btn" onclick="openAddClientModal(event)">
+          <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span>クライアントを追加</span>
+        </button>
+      </div></div>
+    </div></div>
+    <button class="add-section-btn" onclick="openSectionModal()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      セクションを追加
+    </button>
+  </div>
+
+  <!-- CLIENT LIST -->
+  <div id="list-view" style="display: none;">
+    <button class="back-btn" onclick="showHome()">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"></path></svg>
+      ホームに戻る
+    </button>
+    <p class="page-eyebrow">Dashboard / Clients</p>
+    <h1 class="page-heading">クライアント<span>一覧</span></h1>
+    <div class="clients-grid" id="clients-grid"></div>
+    <div class="no-results" id="no-results">「<span id="no-results-query"></span>」に一致するクライアントが見つかりません</div>
+  </div>
+
+  <!-- CLIENT DETAIL -->
+  <div id="detail-view" style="display: none;">
+    <button class="back-btn" onclick="showList()">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"></path></svg>
+      クライアント一覧に戻る
+    </button>
+    <div class="detail-header">
+      <div>
+        <p class="page-eyebrow" id="detail-index">CLIENT / 02</p>
+        <h2 class="detail-name" id="detail-name">株式会社B</h2>
+      </div>
+      <div class="detail-actions">
+        <button class="edit-btn" onclick="openClientEditModal()">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          基本情報を編集
+        </button>
+        <button class="open-all-btn" onclick="openAllTools()">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          すべてのツールを一括で開く
+        </button>
+      </div>
+    </div>
+    <!-- タイルグリッド（トップページと同仕様） -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">🔗</span>
+        <span class="section-title">ツール・リンク</span>
+        <div class="section-header-actions">
+          <button class="sec-btn sec-btn-edit" id="detail-edit-btn" onclick="toggleDetailEditMode(this)">✏️ 編集</button>
+        </div>
+      </div>
+      <div class="tool-grid" id="detail-tile-grid">
+    <div class="tile-wrap" draggable="true" data-sec="detail" data-idx="0">
+      <div class="tile-actions">
+        <button class="tile-act-btn tile-act-edit" onclick="openDetailLinkEdit(0,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+        
+      </div>
+      <a class="tool-tile" href="https://example-b.com" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)" style="animation-delay:0ms">
+        <div class="tile-icon">🌐</div>
+        <div class="tile-label">公式サイト</div>
+      </a>
+    </div>
+  
+    <div class="tile-wrap" draggable="true" data-sec="detail" data-idx="1">
+      <div class="tile-actions">
+        <button class="tile-act-btn tile-act-edit" onclick="openDetailLinkEdit(1,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+        
+      </div>
+      <a class="tool-tile" href="https://docs.google.com/spreadsheets/d/xxx-b" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)" style="animation-delay:35ms">
+        <div class="tile-icon">📊</div>
+        <div class="tile-label">Googleスプレッドシート</div>
+      </a>
+    </div>
+  
+    <div class="tile-wrap" draggable="true" data-sec="detail" data-idx="2">
+      <div class="tile-actions">
+        <button class="tile-act-btn tile-act-edit" onclick="openDetailLinkEdit(2,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+        
+      </div>
+      <a class="tool-tile" href="https://docs.google.com/document/d/xxx-b" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)" style="animation-delay:70ms">
+        <div class="tile-icon">📝</div>
+        <div class="tile-label">議事録</div>
+      </a>
+    </div>
+  
+    <div class="add-tile-wrap">
+      <button class="add-tile-btn" onclick="openDetailLinkAdd()">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg><span>リンクを追加</span>
+      </button>
+    </div></div>
+    </div>
+  </div>
+</main>
+
+<!-- ── Modals ── -->
+
+<!-- Section add/rename modal -->
+<div class="overlay" id="section-modal">
+  <div class="modal">
+    <h3 id="section-modal-title">セクションを追加</h3>
+    <div class="form-group"><label>絵文字アイコン</label><input type="text" id="sec-emoji" placeholder="例: 🚀" maxlength="4"></div>
+    <div class="form-group"><label>セクション名</label><input type="text" id="sec-name" placeholder="例: マーケティング"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeSectionModal()">キャンセル</button>
+      <button class="btn-save" onclick="saveSectionModal()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tile add/edit modal -->
+<div class="overlay" id="tile-modal">
+  <div class="modal">
+    <h3 id="tile-modal-title">ツールを追加</h3>
+    <div class="form-group">
+      <label>アイコン</label>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <div id="tile-icon-preview" style="width:48px;height:48px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;overflow:hidden;"></div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" id="tile-emoji" placeholder="例: 🔧" maxlength="4" oninput="updateTileIconPreview()" style="width:80px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:9px 12px;outline:none;font-family:'Noto Sans JP',sans-serif;transition:border-color .2s;">
+            <span style="font-size:11px;color:var(--text-muted);">絵文字</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button type="button" onclick="document.getElementById('tile-img-input').click()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:11px;padding:7px 12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;white-space:nowrap;transition:border-color .2s,color .2s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">📁 画像を選択</button>
+            <span id="tile-img-filename" style="font-size:11px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;"></span>
+            <button type="button" id="tile-img-clear" onclick="clearTileImage()" style="display:none;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:0;font-family:'Noto Sans JP',sans-serif;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-muted)'">✕ 削除</button>
+          </div>
+        </div>
+      </div>
+      <input type="file" id="tile-img-input" accept="image/*" style="display:none" onchange="onTileImageSelected(this)">
+    </div>
+    <div class="form-group"><label>表示名</label><input type="text" id="tile-label" placeholder="ツール名"></div>
+    <div class="form-group"><label>URL</label><input type="url" id="tile-url" placeholder="https://…"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeTileModal()">キャンセル</button>
+      <button class="btn-save" onclick="saveTileModal()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- Client edit modal -->
+<div class="overlay" id="client-modal">
+  <div class="modal">
+    <h3 id="client-modal-title">株式会社B を編集</h3>
+    <div class="form-group"><label>会社名</label><input type="text" id="c-name" placeholder="株式会社〇〇"></div>
+    <div class="form-group"><label>HP URL</label><input type="url" id="c-hp" placeholder="https://example.com"></div>
+    <div class="form-group"><label>スプレッドシート URL</label><input type="url" id="c-ss" placeholder="https://docs.google.com/spreadsheets/…"></div>
+    <div class="form-group"><label>議事録 URL</label><input type="url" id="c-note" placeholder="https://docs.google.com/document/…"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeClientModal()">キャンセル</button>
+      <button class="btn-save" onclick="saveClientModal()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail link add/edit modal -->
+<div class="overlay" id="detail-link-modal">
+  <div class="modal">
+    <h3 id="dl-modal-title">リンクを追加</h3>
+    <div class="form-group"><label>絵文字アイコン</label><input type="text" id="dl-emoji" placeholder="例: 📋" maxlength="4"></div>
+    <div class="form-group"><label>名称</label><input type="text" id="dl-label" placeholder="例: 契約書"></div>
+    <div class="form-group"><label>URL</label><input type="url" id="dl-url" placeholder="https://…"></div>
+    <div class="modal-actions">
+      <button class="btn-delete" id="dl-delete-btn" onclick="deleteDetailLink()" style="display:none">削除</button>
+      <button class="btn-cancel" onclick="closeDetailLinkModal()">キャンセル</button>
+      <button class="btn-save" onclick="saveDetailLink()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast show" id="toast"><div class="toast-dot"></div><span id="toast-msg">クライアントを追加しました</span></div>
+
+<script>
+// ============================================================
+// ★ セクション＆ツールデータ
+// ============================================================
+
+// ============================================================
+// ★ クライアントデータ（20社）
+// ============================================================
+const CLIENTS = [
+  {
+    "name": "株式会社 ヤマカ木材",
+    "hp": "https://www.yamakawood.co.jp/",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-a",
+    "note": "https://docs.google.com/document/d/xxx-a"
+  },
+  {
+    "name": "紀の国住宅株式会社",
+    "hp": "https://www.kinokuni-j.co.jp/",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-b",
+    "note": "https://docs.google.com/document/d/xxx-b"
+  },
+  {
+    "name": "株式会社C",
+    "hp": "https://example-c.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-c",
+    "note": "https://docs.google.com/document/d/xxx-c"
+  },
+  {
+    "name": "株式会社D",
+    "hp": "https://example-d.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-d",
+    "note": "https://docs.google.com/document/d/xxx-d"
+  },
+  {
+    "name": "株式会社E",
+    "hp": "https://example-e.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-e",
+    "note": "https://docs.google.com/document/d/xxx-e"
+  },
+  {
+    "name": "株式会社F",
+    "hp": "https://example-f.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-f",
+    "note": "https://docs.google.com/document/d/xxx-f"
+  },
+  {
+    "name": "株式会社G",
+    "hp": "https://example-g.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-g",
+    "note": "https://docs.google.com/document/d/xxx-g"
+  },
+  {
+    "name": "株式会社H",
+    "hp": "https://example-h.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-h",
+    "note": "https://docs.google.com/document/d/xxx-h"
+  },
+  {
+    "name": "株式会社I",
+    "hp": "https://example-i.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-i",
+    "note": "https://docs.google.com/document/d/xxx-i"
+  },
+  {
+    "name": "株式会社J",
+    "hp": "https://example-j.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-j",
+    "note": "https://docs.google.com/document/d/xxx-j"
+  },
+  {
+    "name": "株式会社K",
+    "hp": "https://example-k.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-k",
+    "note": "https://docs.google.com/document/d/xxx-k"
+  },
+  {
+    "name": "株式会社L",
+    "hp": "https://example-l.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-l",
+    "note": "https://docs.google.com/document/d/xxx-l"
+  },
+  {
+    "name": "株式会社M",
+    "hp": "https://example-m.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-m",
+    "note": "https://docs.google.com/document/d/xxx-m"
+  },
+  {
+    "name": "株式会社N",
+    "hp": "https://example-n.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-n",
+    "note": "https://docs.google.com/document/d/xxx-n"
+  },
+  {
+    "name": "株式会社O",
+    "hp": "https://example-o.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-o",
+    "note": "https://docs.google.com/document/d/xxx-o"
+  },
+  {
+    "name": "株式会社P",
+    "hp": "https://example-p.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-p",
+    "note": "https://docs.google.com/document/d/xxx-p"
+  },
+  {
+    "name": "株式会社Q",
+    "hp": "https://example-q.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-q",
+    "note": "https://docs.google.com/document/d/xxx-q"
+  },
+  {
+    "name": "株式会社R",
+    "hp": "https://example-r.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-r",
+    "note": "https://docs.google.com/document/d/xxx-r"
+  },
+  {
+    "name": "株式会社S",
+    "hp": "https://example-s.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-s",
+    "note": "https://docs.google.com/document/d/xxx-s"
+  },
+  {
+    "name": "株式会社T",
+    "hp": "https://example-t.com",
+    "ss": "https://docs.google.com/spreadsheets/d/xxx-t",
+    "note": "https://docs.google.com/document/d/xxx-t"
+  }
+];
+// ============================================================
+
+let SECTIONS = [
+  {
+    "id": "ai",
+    "icon": "🤖",
+    "title": "AI",
+    "tiles": [
+      {
+        "emoji": "🤖",
+        "label": "ChatGPT",
+        "url": "https://chatgpt.com"
+      },
+      {
+        "emoji": "✨",
+        "label": "Gemini",
+        "url": "https://gemini.google.com"
+      },
+      {
+        "emoji": "🤍",
+        "label": "Claude",
+        "url": "https://claude.ai"
+      },
+      {
+        "emoji": "📓",
+        "label": "NotebookLM",
+        "url": "https://notebooklm.google.com/?authuser=1"
+      }
+    ]
+  },
+  {
+    "id": "jimu",
+    "icon": "📋",
+    "title": "事務",
+    "tiles": [
+      {
+        "emoji": "🎖️",
+        "label": "RECOG",
+        "url": "https://givertakeall.recog.works/letters"
+      },
+      {
+        "emoji": "🕐",
+        "label": "勤怠",
+        "url": "https://attendance.moneyforward.com/my_page"
+      },
+      {
+        "emoji": "💴",
+        "label": "給与",
+        "url": "https://payroll.moneyforward.com/v2/employees/home"
+      },
+      {
+        "emoji": "🧾",
+        "label": "経費",
+        "url": "https://expense.moneyforward.com/"
+      }
+    ]
+  },
+  {
+    "id": "tools",
+    "icon": "⚙️",
+    "title": "ツール",
+    "tiles": [
+      {
+        "emoji": "📅",
+        "label": "カレンダー",
+        "url": "https://calendar.google.com"
+      },
+      {
+        "emoji": "🎙️",
+        "label": "notta",
+        "url": "https://app.notta.ai/7351917028185690112/dashboard"
+      },
+      {
+        "emoji": "🎨",
+        "label": "Canva",
+        "url": "https://www.canva.com/"
+      },
+      {
+        "emoji": "🟠",
+        "label": "HubSpot",
+        "url": "https://app-na2.hubspot.com/contacts/22493921/objects/0-3/views/all/board?noprefetch="
+      },
+      {
+        "emoji": "✍️",
+        "label": "CLOUDSIGN",
+        "url": "https://www.cloudsign.jp/dashboard"
+      },
+      {
+        "emoji": "📆",
+        "label": "TimeRex",
+        "url": "https://timerex.net/user/0"
+      },
+      {
+        "emoji": "📈",
+        "label": "Ubersuggest",
+        "url": "https://app.neilpatel.com/ja/dashboard"
+      },
+      {
+        "emoji": "📕",
+        "label": "ilovePDF",
+        "url": "https://www.ilovepdf.com/ja"
+      },
+      {
+        "emoji": "🖼️",
+        "label": "iloveIMG",
+        "url": "https://www.iloveimg.com/ja"
+      },
+      {
+        "emoji": "📒",
+        "label": "notion",
+        "url": "https://www.notion.so/ALL-GRIT-25cf30fead2080af8d45d15df4a5793f"
+      }
+    ]
+  },
+  {
+    "id": "line",
+    "icon": "💬",
+    "title": "LINE",
+    "tiles": [
+      {
+        "emoji": "💚",
+        "label": "公式LINE",
+        "url": "https://account.line.biz/login?redirectUri=https%3A%2F%2Faccount.line.biz%2Foauth2%2Fcallback%3Fclient_id%3D10%26code_challenge%3DFqCLBaKpNBeBGdzQZ97XcMy4phYBijoCyEsEsTfAibg%26code_challenge_method%3DS256%26redirect_uri%3Dhttps%253A%252F%252Fmanager.line.biz%252Fapi%252Foauth2%252FbizId%252Fcallback%26response_type%3Dcode%26state%3DebwYOz7Eh16rJnHz9jRQxwkAdGVqMXmL"
+      },
+      {
+        "emoji": "🟩",
+        "label": "ALL GRIT",
+        "url": "https://line-saas.auka.jp/builder/login"
+      },
+      {
+        "emoji": "🔧",
+        "label": "ALL GRIT staging",
+        "url": "https://saas-staging.auka-dev.jp/builder/"
+      },
+      {
+        "emoji": "🔑",
+        "label": "ALL GRIT admin",
+        "url": "https://line-saas.auka.jp/admin"
+      }
+    ]
+  },
+  {
+    "id": "clients",
+    "icon": "🏢",
+    "title": "クライアント",
+    "_isClient": true,
+    "tiles": []
+  }
+];
+let currentClientIndex = null;
+
+// ── utils ──
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+
+// ── 保存（ファイルに書き込み） ──
+function persist(){
+  _saveToFile();
+}
+function loadPersist(){
+  // データはHTMLに直接埋め込まれているので何もしない
+}
+
+// ── ファイル保存（固定ファイル名で上書き） ──
+let _saveTimer = null;
+function _saveToFile(){
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(_doSave, 800);
+}
+
+function _doSave(){
+  showHome();
+  setTimeout(()=>{
+    const src = document.documentElement.outerHTML;
+    const sectionsJSON = JSON.stringify(SECTIONS, null, 2);
+    const clientsJSON  = JSON.stringify(CLIENTS,  null, 2);
+    let out = src
+      .replace(/const DEFAULT_SECTIONS = \[[\s\S]*?\];\n/, '')
+      .replace(/let SECTIONS = JSON\.parse\(JSON\.stringify\(DEFAULT_SECTIONS\)\);/, `let SECTIONS = ${sectionsJSON};`)
+      .replace(/let SECTIONS = \[[\s\S]*?\];/, `let SECTIONS = ${sectionsJSON};`)
+      .replace(/const CLIENTS = \[[\s\S]*?\];/, `const CLIENTS = ${clientsJSON};`);
+    const blob = new Blob([out], {type:'text/html;charset=utf-8'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'GTA-dashboard.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('💾 保存しました — Googleドライブのファイルを差し替えてください');
+  }, 600);
+}
+// ── 手動エクスポート（ヘッダーボタン用） ──
+function exportHTML(){
+  _doSave();
+}
+
+// ── icon SVGs ──
+const IC_EDIT = `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+const IC_DEL  = `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+const IC_PLUS = `<svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+
+// ══════════════════════════════════════════════
+// RENDER HOME
+// ══════════════════════════════════════════════
+function renderHome(){
+  const container = document.getElementById('sections-container');
+  container.innerHTML = '';
+  SECTIONS.forEach(sec => {
+    const div = document.createElement('div');
+    div.className = 'section';
+    div.dataset.secId = sec.id;
+    div.draggable = true;
+    div.innerHTML = `
+      <div class="section-header">
+        <span class="section-icon">${sec.icon}</span>
+        <span class="section-title">${esc(sec.title)}</span>
+        <div class="section-header-actions">
+          <button class="sec-btn sec-btn-move" onclick="moveSection('${sec.id}',-1)" title="上へ">▲</button>
+          <button class="sec-btn sec-btn-move" onclick="moveSection('${sec.id}',+1)" title="下へ">▼</button>
+          <button class="sec-btn sec-btn-edit" onclick="toggleEditMode('${sec.id}',this)">✏️ 編集</button>
+          <button class="sec-btn sec-btn-rename" onclick="openRenameSectionModal('${sec.id}')">名称変更</button>
+          <button class="sec-btn sec-btn-del" onclick="deleteSection('${sec.id}')">削除</button>
+        </div>
+      </div>
+      <div class="tool-grid" id="grid-${sec.id}"></div>
+    `;
+    container.appendChild(div);
+    renderGrid(sec);
+  });
+}
+
+function renderGrid(sec){
+  const grid = document.getElementById('grid-' + sec.id);
+  if(!grid) return;
+  const wasEditing = grid.classList.contains('edit-mode');
+
+  if(sec._isClient){
+    grid.innerHTML = CLIENTS.map((c,i)=>`
+      <div class="tile-wrap" draggable="true" data-sec="${sec.id}" data-idx="${i}">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(${i},event)" title="編集">${IC_EDIT}</button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteClientTile(${i},event)" title="削除">${IC_DEL}</button>
+        </div>
+        <div class="client-tile" onclick="openClientTools(${i})">
+          <div class="client-avatar">🏢</div>
+          <div class="client-tile-name">${esc(c.name)}</div>
+        </div>
+      </div>
+    `).join('') + `
+      <div class="add-tile-wrap">
+        <button class="add-tile-btn" onclick="openAddClientModal(event)">
+          ${IC_PLUS}<span>クライアントを追加</span>
+        </button>
+      </div>`;
+  } else {
+    grid.innerHTML = sec.tiles.map((t,i)=>`
+      <div class="tile-wrap" draggable="true" data-sec="${sec.id}" data-idx="${i}">
+        <div class="tile-actions">
+          <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('${sec.id}',${i},event)" title="編集">${IC_EDIT}</button>
+          <button class="tile-act-btn tile-act-del" onclick="deleteTile('${sec.id}',${i},event)" title="削除">${IC_DEL}</button>
+        </div>
+        <a class="tool-tile" href="${esc(t.url)}" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)">
+          <div class="tile-icon">${t.img ? `<img src="${t.img}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">` : t.emoji}</div>
+          <div class="tile-label">${esc(t.label)}</div>
+        </a>
+      </div>
+    `).join('') + `
+      <div class="add-tile-wrap">
+        <button class="add-tile-btn" onclick="openAddTileModal('${sec.id}',event)">
+          ${IC_PLUS}<span>ツールを追加</span>
+        </button>
+      </div>`;
+  }
+
+  if(wasEditing) grid.classList.add('edit-mode');
+  initDragDrop(grid, sec);
+}
+
+// ── Edit mode ──
+function toggleEditMode(secId, btn){
+  const grid = document.getElementById('grid-' + secId);
+  const active = grid.classList.toggle('edit-mode');
+  btn.classList.toggle('active', active);
+  btn.textContent = active ? '✅ 完了' : '✏️ 編集';
+}
+
+function handleTileClick(e){
+  if(e.currentTarget.closest('.tool-grid')?.classList.contains('edit-mode')) e.preventDefault();
+}
+
+// ── Drag & Drop ──
+function initDragDrop(grid, sec){
+  let dragSrc = null;
+  grid.addEventListener('dragstart', e=>{
+    const wrap = e.target.closest('.tile-wrap');
+    if(!wrap || !grid.classList.contains('edit-mode')){ e.preventDefault(); return; }
+    dragSrc = wrap;
+    setTimeout(()=>wrap.classList.add('dragging'),0);
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  grid.addEventListener('dragend', ()=>{
+    grid.querySelectorAll('.dragging,.drag-over').forEach(el=>el.classList.remove('dragging','drag-over'));
+    dragSrc = null;
+  });
+  grid.addEventListener('dragover', e=>{
+    if(!grid.classList.contains('edit-mode')) return; // 編集モード外はセクションD&Dに渡す
+    e.preventDefault();
+    e.stopPropagation();
+    const wrap = e.target.closest('.tile-wrap');
+    if(!wrap || wrap===dragSrc) return;
+    grid.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));
+    wrap.classList.add('drag-over');
+  });
+  grid.addEventListener('dragleave', e=>{
+    const wrap = e.target.closest('.tile-wrap');
+    if(wrap) wrap.classList.remove('drag-over');
+  });
+  grid.addEventListener('drop', e=>{
+    if(!grid.classList.contains('edit-mode')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const wrap = e.target.closest('.tile-wrap');
+    if(!wrap||!dragSrc||wrap===dragSrc) return;
+    wrap.classList.remove('drag-over');
+    const from = parseInt(dragSrc.dataset.idx);
+    const to   = parseInt(wrap.dataset.idx);
+    if(isNaN(from)||isNaN(to)) return;
+    if(sec._isClient){
+      const [item] = CLIENTS.splice(from,1); CLIENTS.splice(to,0,item);
+    } else {
+      const [item] = sec.tiles.splice(from,1); sec.tiles.splice(to,0,item);
+    }
+    persist();
+    renderGrid(sec);
+    document.getElementById('grid-'+sec.id).classList.add('edit-mode');
+  });
+}
+
+// ── Section move ──
+function moveSection(id, dir){
+  const idx = SECTIONS.findIndex(s=>s.id===id);
+  const newIdx = idx + dir;
+  if(newIdx < 0 || newIdx >= SECTIONS.length) return;
+  const [item] = SECTIONS.splice(idx, 1);
+  SECTIONS.splice(newIdx, 0, item);
+  persist(); renderHome();
+}
+
+// ══════════════════════════════════════════════
+// SECTION MODAL
+// ══════════════════════════════════════════════
+let _secEditId = null;
+
+function openSectionModal(){
+  _secEditId = null;
+  document.getElementById('section-modal-title').textContent = 'セクションを追加';
+  document.getElementById('sec-emoji').value = '📁';
+  document.getElementById('sec-name').value  = '';
+  document.getElementById('section-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('sec-name').focus(),100);
+}
+
+function openRenameSectionModal(id){
+  const sec = SECTIONS.find(s=>s.id===id);
+  if(!sec) return;
+  _secEditId = id;
+  document.getElementById('section-modal-title').textContent = 'セクション名を変更';
+  document.getElementById('sec-emoji').value = sec.icon;
+  document.getElementById('sec-name').value  = sec.title;
+  document.getElementById('section-modal').classList.add('open');
+}
+
+function closeSectionModal(){ document.getElementById('section-modal').classList.remove('open'); _secEditId=null; }
+
+function saveSectionModal(){
+  const emoji = document.getElementById('sec-emoji').value.trim() || '📁';
+  const name  = document.getElementById('sec-name').value.trim();
+  if(!name){ showToast('セクション名を入力してください'); return; }
+  if(_secEditId){
+    const sec = SECTIONS.find(s=>s.id===_secEditId);
+    if(sec){ sec.icon=emoji; sec.title=name; }
+  } else {
+    SECTIONS.push({id:uid(), icon:emoji, title:name, tiles:[]});
+  }
+  persist(); closeSectionModal(); renderHome();
+  showToast(_secEditId ? 'セクション名を変更しました' : 'セクションを追加しました');
+}
+
+function deleteSection(id){
+  if(!confirm('このセクションを削除しますか？')) return;
+  SECTIONS = SECTIONS.filter(s=>s.id!==id);
+  persist(); renderHome();
+  showToast('セクションを削除しました');
+}
+
+// ══════════════════════════════════════════════
+// TILE MODAL (add / edit)
+// ══════════════════════════════════════════════
+let _tileEdit = null; // {secId, idx} or null=add
+let _tileImgData = null; // Base64 image data
+
+function _resetTileImgUI(){
+  _tileImgData = null;
+  document.getElementById('tile-img-filename').textContent = '';
+  document.getElementById('tile-img-clear').style.display = 'none';
+  document.getElementById('tile-img-input').value = '';
+}
+
+function updateTileIconPreview(){
+  const preview = document.getElementById('tile-icon-preview');
+  if(_tileImgData){
+    preview.innerHTML = `<img src="${_tileImgData}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`;
+  } else {
+    preview.textContent = document.getElementById('tile-emoji').value || '🔗';
+  }
+}
+
+function onTileImageSelected(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    _tileImgData = e.target.result;
+    document.getElementById('tile-img-filename').textContent = file.name;
+    document.getElementById('tile-img-clear').style.display = 'inline';
+    updateTileIconPreview();
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearTileImage(){
+  _resetTileImgUI();
+  updateTileIconPreview();
+}
+
+function openAddTileModal(secId, e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  _tileEdit = {secId, idx: null};
+  _resetTileImgUI();
+  document.getElementById('tile-modal-title').textContent = 'ツールを追加';
+  document.getElementById('tile-emoji').value = '🔗';
+  document.getElementById('tile-label').value = '';
+  document.getElementById('tile-url').value   = '';
+  updateTileIconPreview();
+  document.getElementById('tile-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('tile-label').focus(),100);
+}
+
+function openTileEditModal(secId, idx, e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  const sec = SECTIONS.find(s=>s.id===secId);
+  if(!sec) return;
+  const t = sec.tiles[idx];
+  _tileEdit = {secId, idx};
+  _resetTileImgUI();
+  document.getElementById('tile-modal-title').textContent = `「${t.label}」を編集`;
+  document.getElementById('tile-emoji').value = t.emoji;
+  document.getElementById('tile-label').value = t.label;
+  document.getElementById('tile-url').value   = t.url;
+  // 既存画像があれば復元
+  if(t.img){
+    _tileImgData = t.img;
+    document.getElementById('tile-img-filename').textContent = '（設定済み）';
+    document.getElementById('tile-img-clear').style.display = 'inline';
+  }
+  updateTileIconPreview();
+  document.getElementById('tile-modal').classList.add('open');
+}
+
+function closeTileModal(){ document.getElementById('tile-modal').classList.remove('open'); _tileEdit=null; _resetTileImgUI(); }
+
+function saveTileModal(){
+  if(!_tileEdit) return;
+  const emoji = document.getElementById('tile-emoji').value.trim() || '🔗';
+  const label = document.getElementById('tile-label').value.trim();
+  const url   = document.getElementById('tile-url').value.trim();
+  if(!label){ showToast('表示名を入力してください'); return; }
+  if(!url)  { showToast('URLを入力してください'); return; }
+  const sec = SECTIONS.find(s=>s.id===_tileEdit.secId);
+  if(!sec) return;
+  const tileData = {emoji, label, url};
+  if(_tileImgData) tileData.img = _tileImgData;
+  if(_tileEdit.idx === null){
+    sec.tiles.push(tileData);
+  } else {
+    // 既存画像をクリアした場合は削除
+    if(!_tileImgData) delete sec.tiles[_tileEdit.idx].img;
+    sec.tiles[_tileEdit.idx] = tileData;
+  }
+  persist(); closeTileModal();
+  renderGrid(sec);
+  const grid = document.getElementById('grid-'+sec.id);
+  grid.classList.add('edit-mode');
+  const btn = grid.closest('.section')?.querySelector('.sec-btn-edit');
+  if(btn){ btn.classList.add('active'); btn.textContent='✅ 完了'; }
+  showToast(_tileEdit.idx===null ? 'ツールを追加しました' : '保存しました');
+}
+
+function deleteTile(secId, idx, e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  const sec = SECTIONS.find(s=>s.id===secId);
+  if(!sec || !confirm(`「${sec.tiles[idx].label}」を削除しますか？`)) return;
+  sec.tiles.splice(idx,1);
+  persist(); renderGrid(sec);
+  document.getElementById('grid-'+sec.id).classList.add('edit-mode');
+  showToast('削除しました');
+}
+
+// ══════════════════════════════════════════════
+// CLIENT TILE OPERATIONS
+// ══════════════════════════════════════════════
+let _clientEditIdx = null;
+
+function openClientTileEdit(idx, e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  _clientEditIdx = idx;
+  const c = CLIENTS[idx];
+  document.getElementById('client-modal-title').textContent = `${c.name} を編集`;
+  document.getElementById('c-name').value = c.name;
+  document.getElementById('c-hp').value   = c.hp;
+  document.getElementById('c-ss').value   = c.ss;
+  document.getElementById('c-note').value = c.note;
+  document.getElementById('client-modal').classList.add('open');
+}
+
+function openAddClientModal(e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  _clientEditIdx = null;
+  document.getElementById('client-modal-title').textContent = 'クライアントを追加';
+  document.getElementById('c-name').value = '';
+  document.getElementById('c-hp').value   = '';
+  document.getElementById('c-ss').value   = '';
+  document.getElementById('c-note').value = '';
+  document.getElementById('client-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('c-name').focus(),100);
+}
+
+function closeClientModal(){ document.getElementById('client-modal').classList.remove('open'); _clientEditIdx=null; }
+
+function saveClientModal(){
+  const name = document.getElementById('c-name').value.trim();
+  if(!name){ showToast('会社名を入力してください'); return; }
+  const data = {
+    name, hp:document.getElementById('c-hp').value.trim(),
+    ss:document.getElementById('c-ss').value.trim(),
+    note:document.getElementById('c-note').value.trim()
+  };
+  if(_clientEditIdx === null){
+    CLIENTS.push(data);
+  } else {
+    Object.assign(CLIENTS[_clientEditIdx], data);
+  }
+  persist(); closeClientModal();
+  const sec = SECTIONS.find(s=>s._isClient);
+  if(sec){
+    renderGrid(sec);
+    document.getElementById('grid-'+sec.id).classList.add('edit-mode');
+    const btn = document.getElementById('grid-'+sec.id).closest('.section')?.querySelector('.sec-btn-edit');
+    if(btn){ btn.classList.add('active'); btn.textContent='✅ 完了'; }
+  }
+  showToast(_clientEditIdx===null ? 'クライアントを追加しました' : '保存しました');
+}
+
+function deleteClientTile(idx, e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  if(!confirm(`「${CLIENTS[idx].name}」を削除しますか？`)) return;
+  CLIENTS.splice(idx,1);
+  persist();
+  const sec = SECTIONS.find(s=>s._isClient);
+  if(sec){ renderGrid(sec); document.getElementById('grid-'+sec.id).classList.add('edit-mode'); }
+  showToast('削除しました');
+}
+
+// ══════════════════════════════════════════════
+// CLIENT DETAIL PAGE
+// ══════════════════════════════════════════════
+function openClientTools(index){
+  showDetail(index);
+}
+
+function openClientEditModal(){
+  openClientTileEdit(currentClientIndex, null);
+}
+
+function openAllTools(){
+  const c = CLIENTS[currentClientIndex];
+  const urls = getClientLinks(c).map(l=>l.url).filter(Boolean);
+  urls.forEach(u=>window.open(u,'_blank','noopener,noreferrer'));
+  showToast(`${urls.length}つのタブを開きました`);
+}
+
+// クライアントのリンク一覧を正規化して返す
+function getClientLinks(c){
+  const base = [
+    {label:'公式サイト',            url:c.hp,   emoji:'🌐', key:'hp'},
+    {label:'Googleスプレッドシート', url:c.ss,   emoji:'📊', key:'ss'},
+    {label:'議事録',               url:c.note, emoji:'📝', key:'note'},
+  ].filter(l=>l.url);
+  const extra = c.links || [];
+  return [...base, ...extra];
+}
+
+function renderDetailGrid(){
+  const c = CLIENTS[currentClientIndex];
+  const links = getClientLinks(c);
+  const grid  = document.getElementById('detail-tile-grid');
+  if(!grid) return;
+  const wasEditing = grid.classList.contains('edit-mode');
+
+  grid.innerHTML = links.map((t,i)=>`
+    <div class="tile-wrap" draggable="true" data-sec="detail" data-idx="${i}">
+      <div class="tile-actions">
+        <button class="tile-act-btn tile-act-edit" onclick="openDetailLinkEdit(${i},event)" title="編集">${IC_EDIT}</button>
+        ${!t.key ? `<button class="tile-act-btn tile-act-del" onclick="deleteDetailLinkByIdx(${i},event)" title="削除">${IC_DEL}</button>` : ''}
+      </div>
+      <a class="tool-tile" href="${esc(t.url)}" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)" style="animation-delay:${i*35}ms">
+        <div class="tile-icon">${t.emoji}</div>
+        <div class="tile-label">${esc(t.label)}</div>
+      </a>
+    </div>
+  `).join('') + `
+    <div class="add-tile-wrap">
+      <button class="add-tile-btn" onclick="openDetailLinkAdd()">
+        ${IC_PLUS}<span>リンクを追加</span>
+      </button>
+    </div>`;
+
+  if(wasEditing) grid.classList.add('edit-mode');
+  initDetailDragDrop(grid);
+}
+
+function toggleDetailEditMode(btn){
+  const grid = document.getElementById('detail-tile-grid');
+  const active = grid.classList.toggle('edit-mode');
+  btn.classList.toggle('active', active);
+  btn.textContent = active ? '✅ 完了' : '✏️ 編集';
+}
+
+function initDetailDragDrop(grid){
+  let dragSrc = null;
+  grid.addEventListener('dragstart', e=>{
+    const wrap = e.target.closest('.tile-wrap');
+    if(!wrap || !grid.classList.contains('edit-mode')){ e.preventDefault(); return; }
+    dragSrc = wrap;
+    setTimeout(()=>wrap.classList.add('dragging'), 0);
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  grid.addEventListener('dragend', ()=>{
+    grid.querySelectorAll('.dragging,.drag-over').forEach(el=>el.classList.remove('dragging','drag-over'));
+    dragSrc = null;
+  });
+  grid.addEventListener('dragover', e=>{
+    e.preventDefault();
+    const wrap = e.target.closest('.tile-wrap');
+    if(!wrap||wrap===dragSrc||wrap.classList.contains('add-tile-wrap')) return;
+    grid.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));
+    wrap.classList.add('drag-over');
+  });
+  grid.addEventListener('dragleave', e=>{
+    const wrap = e.target.closest('.tile-wrap');
+    if(wrap) wrap.classList.remove('drag-over');
+  });
+  grid.addEventListener('drop', e=>{
+    e.preventDefault();
+    const wrap = e.target.closest('.tile-wrap');
+    if(!wrap||!dragSrc||wrap===dragSrc||wrap.classList.contains('add-tile-wrap')) return;
+    wrap.classList.remove('drag-over');
+    const from = parseInt(dragSrc.dataset.idx);
+    const to   = parseInt(wrap.dataset.idx);
+    if(isNaN(from)||isNaN(to)) return;
+    const c = CLIENTS[currentClientIndex];
+    // 全リンクを並び替えて base/extra に再分解
+    const all = getClientLinks(c);
+    const [item] = all.splice(from, 1);
+    all.splice(to, 0, item);
+    c.hp = ''; c.ss = ''; c.note = '';
+    const newExtra = [];
+    all.forEach(l=>{
+      if(l.key === 'hp')   c.hp   = l.url;
+      else if(l.key === 'ss')   c.ss   = l.url;
+      else if(l.key === 'note') c.note = l.url;
+      else newExtra.push({emoji:l.emoji, label:l.label, url:l.url});
+    });
+    c.links = newExtra;
+    persist(); renderDetailGrid();
+    document.getElementById('detail-tile-grid').classList.add('edit-mode');
+  });
+}
+
+function deleteDetailLinkByIdx(idx, e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  const c = CLIENTS[currentClientIndex];
+  const all = getClientLinks(c);
+  const target = all[idx];
+  if(!target || target.key) return; // 固定リンクは削除不可
+  if(!confirm(`「${target.label}」を削除しますか？`)) return;
+  const ei = (c.links||[]).findIndex(l=>l.label===target.label && l.url===target.url);
+  if(ei >= 0) c.links.splice(ei, 1);
+  persist(); renderDetailGrid();
+  document.getElementById('detail-tile-grid').classList.add('edit-mode');
+  showToast('削除しました');
+}
+
+function showDetail(index){
+  currentClientIndex = index;
+  const c = CLIENTS[index];
+  document.getElementById('detail-index').textContent = `CLIENT / ${String(index+1).padStart(2,'0')}`;
+  document.getElementById('detail-name').textContent  = c.name;
+  renderDetailGrid();
+  setView('detail');
+}
+
+// ── 詳細ページのリンク追加・編集 ──
+let _detailLinkIdx = null; // nullなら新規
+
+function openDetailLinkAdd(){
+  _detailLinkIdx = null;
+  document.getElementById('dl-modal-title').textContent = 'リンクを追加';
+  document.getElementById('dl-emoji').value = '🔗';
+  document.getElementById('dl-label').value = '';
+  document.getElementById('dl-url').value   = '';
+  document.getElementById('dl-delete-btn').style.display = 'none';
+  document.getElementById('detail-link-modal').classList.add('open');
+}
+
+function openDetailLinkEdit(idx, e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  const c = CLIENTS[currentClientIndex];
+  const all = getClientLinks(c);
+  const target = all[idx];
+  if(!target) return;
+  _detailLinkIdx = idx;
+  document.getElementById('dl-modal-title').textContent = 'リンクを編集';
+  document.getElementById('dl-emoji').value = target.emoji || '🔗';
+  document.getElementById('dl-label').value = target.label;
+  document.getElementById('dl-url').value   = target.url;
+  // 固定リンク(key付き)は削除ボタン非表示
+  document.getElementById('dl-delete-btn').style.display = target.key ? 'none' : 'inline-flex';
+  document.getElementById('detail-link-modal').classList.add('open');
+}
+
+function closeDetailLinkModal(){
+  document.getElementById('detail-link-modal').classList.remove('open');
+  _detailLinkIdx = null;
+}
+
+function saveDetailLink(){
+  const emoji = document.getElementById('dl-emoji').value.trim() || '🔗';
+  const label = document.getElementById('dl-label').value.trim();
+  const url   = document.getElementById('dl-url').value.trim();
+  if(!label){ showToast('名称を入力してください'); return; }
+  if(!url)  { showToast('URLを入力してください'); return; }
+  const c = CLIENTS[currentClientIndex];
+  if(_detailLinkIdx === null){
+    // 新規追加
+    if(!c.links) c.links = [];
+    c.links.push({emoji, label, url});
+  } else {
+    // 編集：固定リンクかextraか判定
+    const all = getClientLinks(c);
+    const target = all[_detailLinkIdx];
+    if(target.key){
+      // 固定リンク（hp/ss/note）のURL更新
+      c[target.key] = url;
+      // ラベル・絵文字は固定なので変更しない
+    } else {
+      const ei = (c.links||[]).findIndex(l=>l.label===target.label && l.url===target.url);
+      if(ei >= 0) c.links[ei] = {emoji, label, url};
+    }
+  }
+  persist(); closeDetailLinkModal(); renderDetailGrid();
+  showToast(_detailLinkIdx === null ? 'リンクを追加しました' : '保存しました');
+}
+
+function deleteDetailLink(){
+  const c = CLIENTS[currentClientIndex];
+  if(_detailLinkIdx === null || !c.links) return;
+  if(!confirm(`「${c.links[_detailLinkIdx].label}」を削除しますか？`)) return;
+  c.links.splice(_detailLinkIdx, 1);
+  persist(); closeDetailLinkModal(); renderDetailGrid();
+  showToast('削除しました');
+}
+
+document.getElementById('detail-link-modal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeDetailLinkModal(); });
+
+// ══════════════════════════════════════════════
+// CLIENT LIST
+// ══════════════════════════════════════════════
+function renderList(filtered){
+  const list = filtered !== undefined ? filtered : CLIENTS;
+  const grid = document.getElementById('clients-grid');
+  grid.innerHTML = list.map((c,vi)=>{
+    const i = CLIENTS.indexOf(c);
+    return `
+    <div class="client-card" onclick="showDetail(${i})" style="animation:fadeUp .35s ease ${vi*28}ms both">
+      <div class="card-index">CLIENT / ${String(i+1).padStart(2,'0')}</div>
+      <div class="card-name">${esc(c.name)}</div>
+      <div class="card-tags">
+        <span class="tag tag-hp">HP</span>
+        <span class="tag tag-ss">スプシ</span>
+        <span class="tag tag-note">議事録</span>
+      </div>
+      <span class="card-arrow">›</span>
+    </div>`;
+  }).join('');
+  document.getElementById('no-results').style.display = list.length===0?'block':'none';
+  grid.style.display = list.length===0?'none':'grid';
+}
+
+function filterClients(q){
+  document.getElementById('no-results-query').textContent = q;
+  renderList(CLIENTS.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())));
+}
+
+// ══════════════════════════════════════════════
+// VIEW CONTROL
+// ══════════════════════════════════════════════
+function setView(v){
+  document.getElementById('home-view').style.display   = v==='home'  ?'block':'none';
+  document.getElementById('list-view').style.display   = v==='list'  ?'block':'none';
+  document.getElementById('detail-view').style.display = v==='detail'?'block':'none';
+  document.getElementById('search-area').style.display = v==='list'  ?'flex' :'none';
+  const bc = document.getElementById('breadcrumb');
+  if(v==='home'){
+    bc.innerHTML=`<span class="crumb-current">ホーム</span>`;
+  } else if(v==='list'){
+    bc.innerHTML=`<span class="crumb-link" onclick="showHome()">ホーム</span><span class="sep">/</span><span class="crumb-current">クライアント一覧</span>`;
+  } else {
+    const name = CLIENTS[currentClientIndex]?.name||'';
+    bc.innerHTML=`<span class="crumb-link" onclick="showHome()">ホーム</span><span class="sep">/</span><span class="crumb-link" onclick="showList()">一覧</span><span class="sep">/</span><span class="crumb-current">${esc(name)}</span>`;
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showHome(){ setView('home'); currentClientIndex=null; }
+function showList(){ renderList(); document.getElementById('search-input').value=''; setView('list'); }
+
+// ── Modal overlay close ──
+['section-modal','tile-modal','client-modal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click', e=>{ if(e.target===e.currentTarget) document.getElementById(id).classList.remove('open'); });
+});
+
+// ── Toast ──
+let _tt=null;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('show'); clearTimeout(_tt);
+  _tt=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ── Init ──
+renderHome();
+showHome(); // 常にホームから開始
+
+// Hash routing for client detail
+const hash = location.hash.match(/^#client-(\d+)$/);
+if(hash){ const idx=parseInt(hash[1]); if(CLIENTS[idx]) showDetail(idx); }
+</script>
+
+
+</body></html>
