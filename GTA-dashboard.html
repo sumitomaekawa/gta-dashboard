@@ -545,12 +545,12 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 32p
         <div class="section-header-actions">
           <button class="sec-btn sec-btn-move" onclick="moveSection('clients',-1)" title="上へ">▲</button>
           <button class="sec-btn sec-btn-move" onclick="moveSection('clients',+1)" title="下へ">▼</button>
-          <button class="sec-btn sec-btn-edit" onclick="toggleEditMode('clients',this)">✏️ 編集</button>
+          <button class="sec-btn sec-btn-edit active" onclick="toggleEditMode('clients',this)">✅ 完了</button>
           <button class="sec-btn sec-btn-rename" onclick="openRenameSectionModal('clients')">名称変更</button>
           <button class="sec-btn sec-btn-del" onclick="deleteSection('clients')">削除</button>
         </div>
       </div>
-      <div class="tool-grid" id="grid-clients">
+      <div class="tool-grid edit-mode" id="grid-clients">
       <div class="tile-wrap" draggable="true" data-sec="clients" data-idx="0">
         <div class="tile-actions">
           <button class="tile-act-btn tile-act-edit" onclick="openClientTileEdit(0,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
@@ -591,7 +591,7 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 32p
         </div>
         <div class="client-tile" onclick="openClientTools(3)">
           <div class="client-avatar">🏢</div>
-          <div class="client-tile-name">株式会社D</div>
+          <div class="client-tile-name">石友ホーム株式会社</div>
         </div>
       </div>
     
@@ -834,12 +834,12 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 32p
         <div class="section-header-actions">
           <button class="sec-btn sec-btn-move" onclick="moveSection('mnlhkfqlyt3c',-1)" title="上へ">▲</button>
           <button class="sec-btn sec-btn-move" onclick="moveSection('mnlhkfqlyt3c',+1)" title="下へ">▼</button>
-          <button class="sec-btn sec-btn-edit active" onclick="toggleEditMode('mnlhkfqlyt3c',this)">✅ 完了</button>
+          <button class="sec-btn sec-btn-edit" onclick="toggleEditMode('mnlhkfqlyt3c',this)">✏️ 編集</button>
           <button class="sec-btn sec-btn-rename" onclick="openRenameSectionModal('mnlhkfqlyt3c')">名称変更</button>
           <button class="sec-btn sec-btn-del" onclick="deleteSection('mnlhkfqlyt3c')">削除</button>
         </div>
       </div>
-      <div class="tool-grid edit-mode" id="grid-mnlhkfqlyt3c">
+      <div class="tool-grid" id="grid-mnlhkfqlyt3c">
       <div class="tile-wrap" draggable="true" data-sec="mnlhkfqlyt3c" data-idx="0">
         <div class="tile-actions">
           <button class="tile-act-btn tile-act-edit" onclick="openTileEditModal('mnlhkfqlyt3c',0,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
@@ -894,8 +894,8 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 32p
     </button>
     <div class="detail-header">
       <div>
-        <p class="page-eyebrow" id="detail-index">CLIENT / 03</p>
-        <h2 class="detail-name" id="detail-name">株式会社C</h2>
+        <p class="page-eyebrow" id="detail-index">CLIENT / 04</p>
+        <h2 class="detail-name" id="detail-name">株式会社D</h2>
       </div>
       <div class="detail-actions">
         <button class="edit-btn" onclick="openClientEditModal()">
@@ -923,7 +923,7 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 32p
         <button class="tile-act-btn tile-act-edit" onclick="openDetailLinkEdit(0,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
         
       </div>
-      <a class="tool-tile" href="https://example-c.com" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)" style="animation-delay:0ms">
+      <a class="tool-tile" href="https://example-d.com" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)" style="animation-delay:0ms">
         <div class="tile-icon">🌐</div>
         <div class="tile-label">公式サイト</div>
       </a>
@@ -934,7 +934,7 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 32p
         <button class="tile-act-btn tile-act-edit" onclick="openDetailLinkEdit(1,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
         
       </div>
-      <a class="tool-tile" href="https://docs.google.com/spreadsheets/d/xxx-c" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)" style="animation-delay:35ms">
+      <a class="tool-tile" href="https://docs.google.com/spreadsheets/d/xxx-d" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)" style="animation-delay:35ms">
         <div class="tile-icon">📊</div>
         <div class="tile-label">Googleスプレッドシート</div>
       </a>
@@ -945,7 +945,7 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 32p
         <button class="tile-act-btn tile-act-edit" onclick="openDetailLinkEdit(2,event)" title="編集"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
         
       </div>
-      <a class="tool-tile" href="https://docs.google.com/document/d/xxx-c" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)" style="animation-delay:70ms">
+      <a class="tool-tile" href="https://docs.google.com/document/d/xxx-d" target="_blank" rel="noopener noreferrer" onclick="handleTileClick(event)" style="animation-delay:70ms">
         <div class="tile-icon">📝</div>
         <div class="tile-label">議事録</div>
       </a>
@@ -1009,7 +1009,7 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 32p
 <!-- Client edit modal -->
 <div class="overlay" id="client-modal">
   <div class="modal">
-    <h3 id="client-modal-title">株式会社C を編集</h3>
+    <h3 id="client-modal-title">株式会社D を編集</h3>
     <div class="form-group"><label>会社名</label><input type="text" id="c-name" placeholder="株式会社〇〇"></div>
     <div class="form-group"><label>HP URL</label><input type="url" id="c-hp" placeholder="https://example.com"></div>
     <div class="form-group"><label>スプレッドシート URL</label><input type="url" id="c-ss" placeholder="https://docs.google.com/spreadsheets/…"></div>
@@ -1036,7 +1036,7 @@ main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 32p
   </div>
 </div>
 
-<div class="toast" id="toast"><div class="toast-dot"></div><span id="toast-msg">💾 保存しました — Googleドライブのファイルを差し替えてください</span></div>
+<div class="toast show" id="toast"><div class="toast-dot"></div><span id="toast-msg">クライアントを追加しました</span></div>
 
 <script>
 // ============================================================
@@ -1066,7 +1066,7 @@ const CLIENTS = [
     "note": "https://docs.google.com/document/d/xxx-c"
   },
   {
-    "name": "株式会社D",
+    "name": "石友ホーム株式会社",
     "hp": "https://example-d.com",
     "ss": "https://docs.google.com/spreadsheets/d/xxx-d",
     "note": "https://docs.google.com/document/d/xxx-d"
