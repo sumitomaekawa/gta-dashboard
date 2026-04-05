@@ -1788,7 +1788,7 @@ function deleteClientTile(idx, e){
 // CLIENT DETAIL PAGE
 // ══════════════════════════════════════════════
 function openClientTools(index){
-  showDetail(index);
+  window.open(location.href.split('#')[0] + '#client-' + index, '_blank');
 }
 
 function openClientEditModal(){
@@ -2005,7 +2005,7 @@ function renderList(filtered){
   grid.innerHTML = list.map((c,vi)=>{
     const i = CLIENTS.indexOf(c);
     return `
-    <div class="client-card" onclick="showDetail(${i})" style="animation:fadeUp .35s ease ${vi*28}ms both">
+    <div class="client-card" onclick="window.open(location.href.split('#')[0]+'#client-'+${i},'_blank')" style="animation:fadeUp .35s ease ${vi*28}ms both">
       <div class="card-index">CLIENT / ${String(i+1).padStart(2,'0')}</div>
       <div class="card-name">${esc(c.name)}</div>
       <div class="card-tags">
