@@ -1,4 +1,82 @@
 <html lang="ja"><head>
+<script>
+(function(){
+  const PASSWORD = 'gta2024'; // ← ここでパスワードを変更できます
+  const SESSION_KEY = 'gta_auth';
+  const EXPIRE_HOURS = 8; // ← 何時間ログイン状態を保持するか
+
+  function isAuthenticated(){
+    const data = sessionStorage.getItem(SESSION_KEY);
+    if(!data) return false;
+    try {
+      const {expires} = JSON.parse(data);
+      return Date.now() < expires;
+    } catch(e){ return false; }
+  }
+
+  function showLoginScreen(){
+    document.addEventListener('DOMContentLoaded', function(){
+      const overlay = document.createElement('div');
+      overlay.id = 'auth-overlay';
+      overlay.style.cssText = `
+        position:fixed;inset:0;z-index:9999;
+        background:#0d0f14;
+        display:flex;align-items:center;justify-content:center;
+        font-family:'Noto Sans JP',sans-serif;
+      `;
+      overlay.innerHTML = `
+        <div style="background:#151820;border:1px solid #252a3a;border-radius:16px;padding:48px 40px;width:360px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.6);">
+          <div style="font-size:36px;margin-bottom:16px;">🗂️</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:#4f8ef7;letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px;">GTA DASHBOARD</div>
+          <div style="font-size:18px;font-weight:700;color:#e8eaf0;margin-bottom:32px;">アクセス認証</div>
+          <input id="auth-input" type="password" placeholder="パスワードを入力"
+            style="width:100%;background:#1c2030;border:1px solid #252a3a;border-radius:10px;
+            color:#e8eaf0;font-size:15px;padding:13px 16px;outline:none;text-align:center;
+            font-family:'Noto Sans JP',sans-serif;box-sizing:border-box;transition:border-color .2s;">
+          <div id="auth-error" style="color:#f87171;font-size:13px;margin-top:10px;min-height:20px;"></div>
+          <button id="auth-btn"
+            style="width:100%;margin-top:8px;padding:13px;background:linear-gradient(135deg,#4f8ef7,#7c5ff5);
+            border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:700;
+            cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:opacity .2s;">
+            ログイン
+          </button>
+          <div style="margin-top:20px;font-size:11px;color:#6b7280;">このページはアクセスが制限されています</div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      const input = document.getElementById('auth-input');
+      const btn = document.getElementById('auth-btn');
+      const error = document.getElementById('auth-error');
+
+      input.addEventListener('focus', ()=> input.style.borderColor='#4f8ef7');
+      input.addEventListener('blur', ()=> input.style.borderColor='#252a3a');
+
+      function tryLogin(){
+        if(input.value === PASSWORD){
+          sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+            expires: Date.now() + EXPIRE_HOURS * 60 * 60 * 1000
+          }));
+          overlay.style.opacity='0';
+          overlay.style.transition='opacity .3s';
+          setTimeout(()=> overlay.remove(), 300);
+        } else {
+          error.textContent = 'パスワードが違います';
+          input.value='';
+          input.style.borderColor='#f87171';
+          setTimeout(()=>{ input.style.borderColor='#252a3a'; error.textContent=''; }, 2000);
+        }
+      }
+
+      btn.addEventListener('click', tryLogin);
+      input.addEventListener('keydown', e=>{ if(e.key==='Enter') tryLogin(); });
+      setTimeout(()=> input.focus(), 100);
+    });
+  }
+
+  if(!isAuthenticated()) showLoginScreen();
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>業務ダッシュボード</title>
